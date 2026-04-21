@@ -29,10 +29,6 @@ cards:
     entities:
       - entity: button.restart_openclaw
         name: Starta om OpenClaw
-      - entity: button.docker_restart_openclaw
-        name: Docker Restart OpenClaw
-      - entity: button.docker_stop_openclaw
-        name: Docker Stop OpenClaw
       - entity: button.ubuntu_reboot
         name: Reboot Ubuntu
 

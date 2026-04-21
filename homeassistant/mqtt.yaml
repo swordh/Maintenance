@@ -52,13 +52,13 @@ binary_sensor:
   - name: "OpenClaw Gateway"
     unique_id: ubuntu_openclaw_status
     state_topic: "maintenance/status"
-    value_template: "{{ value_json.docker.openclaw }}"
-    payload_on: "running"
-    payload_off: "exited"
+    value_template: "{{ value_json.openclaw }}"
+    payload_on: "active"
+    payload_off: "inactive"
     device_class: running
     icon: mdi:server
 
-  # Lägg till fler containers här vid behov:
+  # Lägg till Docker-containers här vid behov:
   # - name: "Min Container"
   #   unique_id: ubuntu_mycontainer_status
   #   state_topic: "maintenance/status"
@@ -79,15 +79,3 @@ button:
     command_topic: "maintenance/command/restart_openclaw"
     payload_press: "1"
     icon: mdi:refresh
-
-  - name: "Docker Restart OpenClaw"
-    unique_id: ubuntu_docker_restart_openclaw
-    command_topic: "maintenance/command/docker/openclaw/restart"
-    payload_press: "1"
-    icon: mdi:docker
-
-  - name: "Docker Stop OpenClaw"
-    unique_id: ubuntu_docker_stop_openclaw
-    command_topic: "maintenance/command/docker/openclaw/stop"
-    payload_press: "1"
-    icon: mdi:stop-circle-outline

@@ -63,10 +63,30 @@ def get_docker_statuses(containers: list[str]) -> dict:
     return statuses
 
 
+def get_openclaw_status() -> str:
+    import pwd
+    try:
+        uid = pwd.getpwnam("sejsv").pw_uid
+        result = subprocess.run(
+            [
+                "sudo", "-u", "sejsv",
+                "env",
+                f"XDG_RUNTIME_DIR=/run/user/{uid}",
+                f"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus",
+                "systemctl", "--user", "is-active", "openclaw-gateway",
+            ],
+            capture_output=True, text=True, timeout=10,
+        )
+        return result.stdout.strip() or "inactive"
+    except Exception as e:
+        log.warning(f"Kunde inte hämta openclaw-status: {e}")
+        return "unknown"
+
+
 def collect_metrics(cfg: dict) -> dict:
     ram = psutil.virtual_memory()
     disk = psutil.disk_usage(cfg.get("disk_path", "/"))
-    containers = cfg.get("docker_containers", [])
+    containers = cfg.get("docker_containers") or []
     return {
         "ram_percent": ram.percent,
         "ram_used_mb": round(ram.used / 1024 / 1024),
@@ -75,6 +95,7 @@ def collect_metrics(cfg: dict) -> dict:
         "disk_used_gb": round(disk.used / 1024 / 1024 / 1024, 1),
         "disk_total_gb": round(disk.total / 1024 / 1024 / 1024, 1),
         "pending_updates": count_pending_updates(),
+        "openclaw": get_openclaw_status(),
         "docker": get_docker_statuses(containers),
         "timestamp": int(time.time()),
     }
@@ -124,9 +145,17 @@ class MaintenanceAgent:
             threading.Thread(target=self._delayed_reboot, daemon=True).start()
 
         elif topic == "maintenance/command/restart_openclaw":
-            ok, out = run_command(["systemctl", "restart", "openclaw"])
+            import pwd
+            uid = pwd.getpwnam("sejsv").pw_uid
+            ok, out = run_command([
+                "sudo", "-u", "sejsv",
+                "env",
+                f"XDG_RUNTIME_DIR=/run/user/{uid}",
+                f"DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/{uid}/bus",
+                "systemctl", "--user", "restart", "openclaw-gateway",
+            ])
             status = "OK" if ok else "FEL"
-            self._publish_log(f"restart openclaw: {status} — {out}")
+            self._publish_log(f"restart openclaw-gateway: {status} — {out}")
 
         elif topic.startswith("maintenance/command/docker/"):
             parts = topic.split("/")
