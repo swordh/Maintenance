@@ -8,7 +8,7 @@ mqtt:
 poll_interval: 30            # Sekunder mellan metrics-publicering
 
 docker_containers:
-  - "openclaw"               # Lägg till fler containers vid behov
+  []
   # - "my-other-container"
 
 disk_path: "/"               # Vilken partition som övervakas

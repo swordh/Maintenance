@@ -75,9 +75,9 @@ def cmd_status(cfg: dict):
         print(f"  Docker-fel: {e}")
 
     print("\n=== OpenClaw Gateway ===")
-    ok, out = run(["systemctl", "is-active", "openclaw"])
+    ok, out = run(["sudo", "-u", "sejsv", "systemctl", "--user", "is-active", "openclaw-gateway"])
     status = "aktiv" if ok else "inaktiv"
-    print(f"  openclaw.service: {status}")
+    print(f"  openclaw-gateway.service: {status}")
 
 
 def cmd_reboot():
@@ -90,9 +90,9 @@ def cmd_reboot():
 
 
 def cmd_restart_openclaw():
-    ok, out = run(["systemctl", "restart", "openclaw"])
+    ok, out = run(["sudo", "-u", "sejsv", "systemctl", "--user", "restart", "openclaw-gateway"])
     if ok:
-        print("openclaw startades om.")
+        print("openclaw-gateway startades om.")
     else:
         print(f"Fel: {out}")
 
