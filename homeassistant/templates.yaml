@@ -1,0 +1,17 @@
+# Inkludera i configuration.yaml:
+#
+#   template: !include templates.yaml
+#
+# Eller klistra in i befintlig template-sektion.
+
+- binary_sensor:
+  - name: "Ubuntu data stale"
+    unique_id: ubuntu_data_stale
+    state: >
+      {% set last = states('sensor.ubuntu_senast_sedd') %}
+      {% if last not in ['unknown', 'unavailable'] %}
+        {{ (now() - last | as_datetime).total_seconds() > 60 }}
+      {% else %}
+        true
+      {% endif %}
+    device_class: problem
