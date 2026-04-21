@@ -1,0 +1,14 @@
+mqtt:
+  host: "192.168.x.x"       # Byt till HA-maskinens IP
+  port: 1883
+  username: ""               # MQTT-användarnamn om satt i Mosquitto
+  password: ""               # MQTT-lösenord om satt i Mosquitto
+  client_id: "maintenance-agent"
+
+poll_interval: 30            # Sekunder mellan metrics-publicering
+
+docker_containers:
+  - "openclaw"               # Lägg till fler containers vid behov
+  # - "my-other-container"
+
+disk_path: "/"               # Vilken partition som övervakas

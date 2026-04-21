@@ -1,0 +1,93 @@
+# Lägg till detta i din Home Assistant configuration.yaml:
+#
+#   mqtt: !include mqtt.yaml
+#
+# Eller om du redan har mqtt.yaml, klistra in relevant sektion.
+#
+# Byt ut "ubuntu" mot önskat namn om du har flera maskiner.
+
+sensor:
+  - name: "Ubuntu RAM"
+    unique_id: ubuntu_ram_percent
+    state_topic: "maintenance/status"
+    value_template: "{{ value_json.ram_percent }}"
+    unit_of_measurement: "%"
+    device_class: battery
+    icon: mdi:memory
+
+  - name: "Ubuntu RAM använt"
+    unique_id: ubuntu_ram_used_mb
+    state_topic: "maintenance/status"
+    value_template: "{{ value_json.ram_used_mb }}"
+    unit_of_measurement: "MB"
+    icon: mdi:memory
+
+  - name: "Ubuntu Disk"
+    unique_id: ubuntu_disk_percent
+    state_topic: "maintenance/status"
+    value_template: "{{ value_json.disk_percent }}"
+    unit_of_measurement: "%"
+    icon: mdi:harddisk
+
+  - name: "Ubuntu Disk använt"
+    unique_id: ubuntu_disk_used_gb
+    state_topic: "maintenance/status"
+    value_template: "{{ value_json.disk_used_gb }}"
+    unit_of_measurement: "GB"
+    icon: mdi:harddisk
+
+  - name: "Ubuntu uppdateringar"
+    unique_id: ubuntu_pending_updates
+    state_topic: "maintenance/status"
+    value_template: "{{ value_json.pending_updates }}"
+    unit_of_measurement: "st"
+    icon: mdi:package-up
+
+  - name: "Ubuntu maintenance log"
+    unique_id: ubuntu_maintenance_log
+    state_topic: "maintenance/log"
+    icon: mdi:text-box-outline
+
+binary_sensor:
+  - name: "OpenClaw Gateway"
+    unique_id: ubuntu_openclaw_status
+    state_topic: "maintenance/status"
+    value_template: "{{ value_json.docker.openclaw }}"
+    payload_on: "running"
+    payload_off: "exited"
+    device_class: running
+    icon: mdi:server
+
+  # Lägg till fler containers här vid behov:
+  # - name: "Min Container"
+  #   unique_id: ubuntu_mycontainer_status
+  #   state_topic: "maintenance/status"
+  #   value_template: "{{ value_json.docker['my-other-container'] }}"
+  #   payload_on: "running"
+  #   payload_off: "exited"
+  #   device_class: running
+
+button:
+  - name: "Ubuntu Reboot"
+    unique_id: ubuntu_reboot
+    command_topic: "maintenance/command/reboot"
+    payload_press: "1"
+    icon: mdi:restart
+
+  - name: "Restart OpenClaw"
+    unique_id: ubuntu_restart_openclaw
+    command_topic: "maintenance/command/restart_openclaw"
+    payload_press: "1"
+    icon: mdi:refresh
+
+  - name: "Docker Restart OpenClaw"
+    unique_id: ubuntu_docker_restart_openclaw
+    command_topic: "maintenance/command/docker/openclaw/restart"
+    payload_press: "1"
+    icon: mdi:docker
+
+  - name: "Docker Stop OpenClaw"
+    unique_id: ubuntu_docker_stop_openclaw
+    command_topic: "maintenance/command/docker/openclaw/stop"
+    payload_press: "1"
+    icon: mdi:stop-circle-outline

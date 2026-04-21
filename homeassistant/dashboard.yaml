@@ -1,0 +1,42 @@
+# Lovelace dashboard-kort för Ubuntu Maintenance
+# Klistra in i din dashboard via "Edit Dashboard" → "Edit YAML"
+
+title: Ubuntu Maintenance
+type: vertical-stack
+cards:
+  - type: entities
+    title: Ubuntu System
+    entities:
+      - entity: sensor.ubuntu_ram
+        name: RAM användning
+      - entity: sensor.ubuntu_ram_anvant
+        name: RAM använt
+      - entity: sensor.ubuntu_disk
+        name: Disk användning
+      - entity: sensor.ubuntu_disk_anvant
+        name: Disk använt
+      - entity: sensor.ubuntu_uppdateringar
+        name: Väntande uppdateringar
+
+  - type: entities
+    title: Tjänster
+    entities:
+      - entity: binary_sensor.openclaw_gateway
+        name: OpenClaw Gateway
+
+  - type: entities
+    title: Åtgärder
+    entities:
+      - entity: button.restart_openclaw
+        name: Starta om OpenClaw
+      - entity: button.docker_restart_openclaw
+        name: Docker Restart OpenClaw
+      - entity: button.docker_stop_openclaw
+        name: Docker Stop OpenClaw
+      - entity: button.ubuntu_reboot
+        name: Reboot Ubuntu
+
+  - type: markdown
+    content: |
+      **Senaste logg:**
+      {{ states('sensor.ubuntu_maintenance_log') }}
