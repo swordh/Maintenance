@@ -123,6 +123,13 @@ class MaintenanceAgent:
         if cfg["mqtt"].get("username"):
             self.client.username_pw_set(cfg["mqtt"]["username"], cfg["mqtt"]["password"])
 
+        self.client.will_set(
+            "maintenance/heartbeat",
+            json.dumps({"state": "offline", "timestamp": int(time.time())}),
+            retain=True,
+            qos=1,
+        )
+
         self._stop = threading.Event()
 
     def _publish_log(self, msg: str):
@@ -133,6 +140,12 @@ class MaintenanceAgent:
         if rc == 0:
             log.info("Ansluten till MQTT-broker")
             client.subscribe("maintenance/command/#")
+            client.publish(
+                "maintenance/heartbeat",
+                json.dumps({"state": "online", "timestamp": int(time.time())}),
+                retain=True,
+                qos=1,
+            )
         else:
             log.error(f"MQTT-anslutning misslyckades, kod: {rc}")
 
@@ -185,7 +198,13 @@ class MaintenanceAgent:
         while not self._stop.is_set():
             try:
                 metrics = collect_metrics(self.cfg)
-                self.client.publish("maintenance/status", json.dumps(metrics), retain=True)
+                self.client.publish("maintenance/status", json.dumps(metrics), retain=False)
+                self.client.publish(
+                    "maintenance/heartbeat",
+                    json.dumps({"state": "online", "timestamp": int(time.time())}),
+                    retain=True,
+                    qos=1,
+                )
             except Exception as e:
                 log.error(f"Metrics-fel: {e}")
             self._stop.wait(interval)

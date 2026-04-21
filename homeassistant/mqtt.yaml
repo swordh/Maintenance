@@ -48,7 +48,23 @@ sensor:
     state_topic: "maintenance/log"
     icon: mdi:text-box-outline
 
+  - name: "Ubuntu senast sedd"
+    unique_id: ubuntu_last_seen
+    state_topic: "maintenance/heartbeat"
+    value_template: "{{ as_datetime(value_json.timestamp) }}"
+    device_class: timestamp
+    icon: mdi:clock-outline
+
 binary_sensor:
+  - name: "Maintenance Agent"
+    unique_id: ubuntu_maintenance_agent
+    state_topic: "maintenance/heartbeat"
+    value_template: "{{ value_json.state }}"
+    payload_on: "online"
+    payload_off: "offline"
+    device_class: connectivity
+    icon: mdi:server-network
+
   - name: "OpenClaw Gateway"
     unique_id: ubuntu_openclaw_status
     state_topic: "maintenance/status"

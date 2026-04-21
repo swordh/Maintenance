@@ -21,6 +21,10 @@ cards:
   - type: entities
     title: Tjänster
     entities:
+      - entity: binary_sensor.maintenance_agent
+        name: Maintenance Agent
+      - entity: sensor.ubuntu_senast_sedd
+        name: Senast sedd
       - entity: binary_sensor.openclaw_gateway
         name: OpenClaw Gateway
 
