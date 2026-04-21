@@ -25,16 +25,26 @@ Ubuntu-maskin                          Home Assistant
 ```bash
 # Klona repot
 git clone https://github.com/swordh/Maintenance.git /opt/maintenance
+cd /opt/maintenance
+
+# Skapa virtual environment
+python3 -m venv venv
+source venv/bin/activate
 
 # Installera beroenden
-pip3 install -r /opt/maintenance/agent/requirements.txt
+pip install -r agent/requirements.txt
 
 # Konfigurera
-nano /opt/maintenance/agent/config.yaml
+nano agent/config.yaml
 # Sätt mqtt.host till HA-maskinens IP
 
 # Installera systemd-service
-sudo cp /opt/maintenance/systemd/maintenance.service /etc/systemd/system/
+sudo cp systemd/maintenance.service /etc/systemd/system/
+
+# Uppdatera ExecStart i servicefilen för venv
+sudo sed -i "s|ExecStart=/usr/bin/python3|ExecStart=/opt/maintenance/venv/bin/python3|" /etc/systemd/system/maintenance.service
+
+# Aktivera och starta
 sudo systemctl daemon-reload
 sudo systemctl enable maintenance
 sudo systemctl start maintenance
@@ -46,24 +56,43 @@ sudo systemctl status maintenance
 ## CLI-användning
 
 ```bash
+# Aktivera venv först
+source /opt/maintenance/venv/bin/activate
+
 # Visa systemstatus
-sudo python3 /opt/maintenance/cli/maintenance_cli.py status
+sudo /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py status
 
 # Starta om OpenClaw
-sudo python3 /opt/maintenance/cli/maintenance_cli.py restart-openclaw
+sudo /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py restart-openclaw
 
 # Reboot
-sudo python3 /opt/maintenance/cli/maintenance_cli.py reboot
+sudo /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py reboot
 
 # Docker
-sudo python3 /opt/maintenance/cli/maintenance_cli.py docker list
-sudo python3 /opt/maintenance/cli/maintenance_cli.py docker restart openclaw
-sudo python3 /opt/maintenance/cli/maintenance_cli.py docker stop openclaw
+sudo /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py docker list
+sudo /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py docker restart openclaw
+sudo /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py docker stop openclaw
 ```
 
-Lägg gärna till ett alias i `/etc/bash.bashrc`:
+Lägg till ett alias i `/etc/bash.bashrc`:
 ```bash
-alias maintenance="sudo python3 /opt/maintenance/cli/maintenance_cli.py"
+alias maintenance="source /opt/maintenance/venv/bin/activate && /opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py"
+```
+
+Eller ännu enklare, skapa ett shell-wrapper-skript:
+```bash
+sudo tee /usr/local/bin/maintenance > /dev/null <<'EOF'
+#!/bin/bash
+source /opt/maintenance/venv/bin/activate
+/opt/maintenance/venv/bin/python3 /opt/maintenance/cli/maintenance_cli.py "$@"
+EOF
+
+sudo chmod +x /usr/local/bin/maintenance
+
+# Använd sedan bara:
+sudo maintenance status
+sudo maintenance restart-openclaw
+sudo maintenance docker list
 ```
 
 ## Home Assistant-integration

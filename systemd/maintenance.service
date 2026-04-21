@@ -6,11 +6,12 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /opt/maintenance/agent/maintenance_agent.py
+ExecStart=/opt/maintenance/venv/bin/python3 /opt/maintenance/agent/maintenance_agent.py
 WorkingDirectory=/opt/maintenance/agent
 Restart=always
 RestartSec=10
 User=root
+Environment="PATH=/opt/maintenance/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 [Install]
 WantedBy=multi-user.target
